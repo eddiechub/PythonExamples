@@ -14,11 +14,12 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Get Portfolio Prices - Process Arguments', epilog="ok, so you're getting closer")
     parser.add_argument('-v', '--verbose', dest="verbose", action='count', help='Add Verbosity')
-    parser.add_argument('-f', '--file', nargs="?", dest="myfile", action='store', default="edstocks20171015.txt", help='portfolio filename')
+    parser.add_argument('-f', '--file', nargs="?", dest="myfile", default=None, action='store', help='portfolio filename')
     args = parser.parse_args()
 
-    if not os.path.isfile(args.myfile):
-        args.myfile = "Downloads/"+args.myfile
+    if not args.myfile or not os.path.isfile(args.myfile):
+        #args.myfile = "Downloads/"+args.myfile
+        args.myfile = os.getenv("STOCK_FILE")
 
     if os.path.isfile(args.myfile):
 
