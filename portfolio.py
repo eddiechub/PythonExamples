@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import unittest 
 import sys, os
 import csv
 import requests
@@ -181,6 +182,9 @@ class Portfolio:
             #print("line=%s" % row)
             #for col in row:
             #    print("col=%s" % col)
+            if len(row) < 3:
+                continue
+
             ticker = row[0]
 
             if row[3] == "N/A":
@@ -366,6 +370,11 @@ class Portfolio:
         yformat = "snl1c1vkjhgpw";
         url = "http://download.finance.yahoo.com/d/quotes.csv?s={symlist}&f={yformat}&e=.csv".format(symlist=symlist,yformat=yformat);
         r = requests.get(url)
+        if r.status_code == 403:
+            print(r.text)
+            # Should throw
+            return ""
+
         response = ""
         for line in r:
             if isinstance(line,bytes):
@@ -380,22 +389,50 @@ class Portfolio:
 
         return response
 
+class TestStringMethods(unittest.TestCase):
+
+    def setUp(self):
+        pass
+        #print("SetUp")
+
+    def tearDown(self):
+        pass
+        #print("Teardown")
+
+    def doCleanups(self):
+        pass
+        #print("doCleanups")
+
+    def test_upper(self):
+        self.assertEqual('foo'.upper(), 'FOO')
+
+    def test_isupper(self):
+        self.assertTrue('FOO'.isupper())
+        self.assertFalse('Foo'.isupper())
+
+    def test_split(self):
+        s = 'hello world'
+        self.assertEqual(s.split(), ['hello', 'world'])
+        # check that s.split fails when the separator is not a string
+        with self.assertRaises(TypeError):
+            s.split(2)
+
+    def test_instrunment(self):
+        instrument = Instrument("EUR=")
+
+        from unittest import mock
+        instrument.generate_request_symbol = mock.Mock()
+        instrument.generate_request_symbol()
+
+        self.assertTrue(instrument)
+        #print("%s: init_value=%s" % (name, row[1]))
+        instrument.set_field("init_value", 100)
+        instrument.set_field("amount1", 10)
+        instrument.set_field("amount2", 20)
+        self.assertEqual(instrument.get_field("amount2"),20.090)
 
 if __name__ == "__main__":
-    # Add getargs here
-    myfile = "Downloads/edstocks20170803.txt"
-
-    print("Type=%s" % Portfolio.type)
-
-    edsport = Portfolio("EdsList")
-    edsport.readPortfolio(myfile)
-
-    tickers = edsport.get_tickers()
-    #print(tickers)
-    res = edsport.get_data(tickers)
-    edsport.processResponse(res)
-
-# print("Goodbye")
+    unittest.main()
 
 """
 import urllib.request
